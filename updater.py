@@ -8,7 +8,7 @@ import zipfile
 # ❶ URLs HIER ANPASSEN
 # -------------------------
 REMOTE_VERSION_URL = "https://github.com/Jakob707/Papas-Geburtstag/blob/eff05237755847ebbc5403b49e6a1309d77f7418/version.txt"
-UPDATE_ZIP_URL = "https://github.com/Jakob707/Papas-Geburtstag/blob/5de53355ee2450f0856b687ea0372194ce164591/MiniToolbox.zip"
+UPDATE_ZIP_URL = "https://github.com/Jakob707/Papas-Geburtstag/blob/8359e908867d9b0fd7fcad32d7612b61c5fe39f9/MiniToolbox.zip"
 # -------------------------
 
 TMP_ZIP = "/tmp/update.zip"
