@@ -1,11 +1,3 @@
-# -------------------------
-# Updater importieren
-# -------------------------
-from updater import check_for_updates
-
-# -------------------------
-# App starten
-# -------------------------
 def main_app():
     print("🚀 Starte Hauptprogramm…")
 
@@ -52,13 +44,3 @@ def main_app():
 
     root.mainloop()
 
-
-if __name__ == "__main__":
-    # 1️⃣ Prüfe auf Updates
-    try:
-        check_for_updates()
-    except Exception as e:
-        print("⚠️ Update konnte nicht geprüft werden:", e)
-
-    # 2️⃣ Starte die eigentliche App
-    main_app()
