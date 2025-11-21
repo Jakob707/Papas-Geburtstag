@@ -1,7 +1,15 @@
-def main_app():
-    print("🚀 Starte Hauptprogramm…")
+import customtkinter as ctk
+import auto_update
 
-    import customtkinter as ctk
+
+"""
+Jakob707/Papas-Geburtstag
+1
+"""
+
+
+def main_app():
+
 
     ctk.set_appearance_mode("System")
     ctk.set_default_color_theme('blue')
