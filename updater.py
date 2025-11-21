@@ -7,7 +7,7 @@ import zipfile
 # -------------------------
 # ❶ URLs HIER ANPASSEN
 # -------------------------
-REMOTE_VERSION_URL = "HIER_VERSION_URL_REIN"  # z.B. https://raw.githubusercontent.com/USER/REPO/main/version.txt
+REMOTE_VERSION_URL = "https://github.com/Jakob707/Papas-Geburtstag/blob/eff05237755847ebbc5403b49e6a1309d77f7418/version.txt"
 UPDATE_ZIP_URL = "HIER_ZIP_URL_REIN"          # z.B. https://github.com/USER/REPO/raw/main/MeineApp.app.zip
 # -------------------------
 
