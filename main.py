@@ -15,13 +15,13 @@ def main_app():
     ctk.set_default_color_theme('blue')
 
     root = ctk.CTk()
-    root.geometry("800x400")
+    root.geometry("800x800")
 
     class MainPage(ctk.CTkFrame):
         def __init__(self, master):
             super().__init__(master)
 
-            label = ctk.CTkLabel(master=self, text="Test!")
+            label = ctk.CTkLabel(master=self, text="Test!!!")
             label.place(relx=0.5, rely=0.2, anchor=ctk.CENTER)
 
             def button_function():
