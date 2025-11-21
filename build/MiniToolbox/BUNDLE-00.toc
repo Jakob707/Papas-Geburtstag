@@ -1,3 +1,0 @@
-([('MiniToolbox',
-   '/Volumes/Generell/Repos/main/Papas Geburtstag 2025/dist/MiniToolbox',
-   'EXECUTABLE')],)
