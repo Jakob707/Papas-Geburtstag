@@ -21,7 +21,7 @@ def main_app():
         def __init__(self, master):
             super().__init__(master)
 
-            label = ctk.CTkLabel(master=self, text="Test!!!")
+            label = ctk.CTkLabel(master=self, text="Test222???")
             label.place(relx=0.5, rely=0.2, anchor=ctk.CENTER)
 
             def button_function():
