@@ -2,29 +2,27 @@ import os
 import sys
 from updater import check_for_updates
 
-# Deine GitHub-Infos hier eintragen
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
+
+# Deine GitHub-Infos
 GITHUB_USER = "Jakob707"
 REPO_NAME = "Papas-Geburtstag"
 BRANCH = "main"
-
-# Dateien die synchronisiert werden sollen
-FILES_TO_UPDATE = ["main.py", "updater.py", "tools.py"]
+APP_NAME = "MiniToolbox"  # Name deiner .app (ohne .app)
 
 
 def main():
     print("=== MiniToolbox ===\n")
 
-    # Update-Check beim Start
     print("Prüfe auf Updates...")
-    updated = check_for_updates(GITHUB_USER, REPO_NAME, BRANCH, FILES_TO_UPDATE)
+    updated = check_for_updates(GITHUB_USER, REPO_NAME, BRANCH, APP_NAME)
 
     if updated:
-        print("App wurde aktualisiert! Starte neu...")
-        os.execv(sys.executable, [sys.executable] + sys.argv)
+        print("Update installiert. Bitte App neu starten.")
+        sys.exit(0)
 
     print("App ist aktuell.\n")
 
-    # === Hier kommen deine Tools hin ===
     from tools import run_tools
     run_tools()
 
