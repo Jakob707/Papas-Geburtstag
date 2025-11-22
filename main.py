@@ -2,9 +2,6 @@ import os
 import sys
 from updater import check_for_updates
 
-#unnötige Fehlermeldung unterdrücken
-os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
-
 # Deine GitHub-Infos hier eintragen
 GITHUB_USER = "Jakob707"
 REPO_NAME = "Papas-Geburtstag"
