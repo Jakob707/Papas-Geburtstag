@@ -1,7 +1,24 @@
 import urllib.request
 import os
+import sys
 import threading
 import customtkinter as ctk
+
+
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        # macOS .app Bundle: sys.executable liegt in MeineApp.app/Contents/MacOS/
+        # Wir wollen den Ordner NEBEN der .app
+        exe_path = os.path.dirname(sys.executable)
+        if sys.platform == "darwin":
+            # 3 Ebenen hoch: MacOS -> Contents -> .app -> Ordner daneben
+            return os.path.dirname(os.path.dirname(os.path.dirname(exe_path)))
+        else:
+            # Windows .exe
+            return exe_path
+    else:
+        # Normal in PyCharm
+        return os.path.dirname(__file__)
 
 
 def get_raw_url(user, repo, branch, filename):
@@ -18,18 +35,20 @@ def get_remote_version(user, repo, branch):
 
 
 def get_local_version():
-    if os.path.exists("version.txt"):
-        with open("version.txt", "r") as f:
+    version_path = os.path.join(get_base_path(), "version.txt")
+    if os.path.exists(version_path):
+        with open(version_path, "r") as f:
             return f.read().strip()
     return "0"
 
 
 def download_file(user, repo, branch, filename):
     url = get_raw_url(user, repo, branch, filename)
+    filepath = os.path.join(get_base_path(), filename)
     try:
         with urllib.request.urlopen(url) as response:
             content = response.read()
-        with open(filename, "wb") as f:
+        with open(filepath, "wb") as f:
             f.write(content)
         return True
     except Exception as e:

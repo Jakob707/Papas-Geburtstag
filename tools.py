@@ -8,7 +8,8 @@ def run_tools():
 
 
     root = ctk.CTk()
-    root.geometry("400x400")
+    root.geometry("800x400")
+    root.title("MiniToolbox")
 
 
     class MainPage(ctk.CTkFrame):
