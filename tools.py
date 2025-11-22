@@ -8,15 +8,15 @@ def run_tools():
 
 
     root = ctk.CTk()
-    root.geometry("800x400")
-    root.title("MiniToolbox")
+    root.geometry("400x400")
+    root.title("Test")
 
 
     class MainPage(ctk.CTkFrame):
         def __init__(self, master):
             super().__init__(master)
 
-            label = ctk.CTkLabel(master=self, text="Welcome!")
+            label = ctk.CTkLabel(master=self, text="Welcome!!!")
             label.place(relx=0.5, rely=0.2, anchor=ctk.CENTER)
 
 
