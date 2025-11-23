@@ -1,41 +1,11 @@
 import urllib.request
 import os
-import sys
-import zipfile
-import shutil
 import threading
 import customtkinter as ctk
 
 
-def get_base_path():
-    """Gibt den Ordner zurück, in dem die .app liegt"""
-    if getattr(sys, 'frozen', False):
-        exe_path = os.path.dirname(sys.executable)
-        if sys.platform == "darwin":
-            # 3 Ebenen hoch: MacOS -> Contents -> .app -> Ordner daneben
-            return os.path.dirname(os.path.dirname(os.path.dirname(exe_path)))
-        else:
-            return exe_path
-    else:
-        return os.path.dirname(__file__)
-
-
-def get_app_path():
-    """Gibt den Pfad zur .app selbst zurück"""
-    if getattr(sys, 'frozen', False) and sys.platform == "darwin":
-        exe_path = os.path.dirname(sys.executable)
-        # 2 Ebenen hoch: MacOS -> Contents -> .app
-        return os.path.dirname(os.path.dirname(exe_path))
-    return None
-
-
 def get_raw_url(user, repo, branch, filename):
     return f"https://raw.githubusercontent.com/{user}/{repo}/{branch}/{filename}"
-
-
-def get_release_url(user, repo, filename):
-    """URL für GitHub Release Downloads"""
-    return f"https://github.com/{user}/{repo}/releases/latest/download/{filename}"
 
 
 def get_remote_version(user, repo, branch):
@@ -48,39 +18,37 @@ def get_remote_version(user, repo, branch):
 
 
 def get_local_version():
-    version_path = os.path.join(get_base_path(), "version.txt")
-    if os.path.exists(version_path):
-        with open(version_path, "r") as f:
+    if os.path.exists("version.txt"):
+        with open("version.txt", "r") as f:
             return f.read().strip()
     return "0"
 
 
-def download_app_zip(user, repo, zip_name, dest_path):
-    """Lädt die neue .app als .zip von GitHub Releases"""
-    url = get_release_url(user, repo, zip_name)
+def download_file(user, repo, branch, filename):
+    url = get_raw_url(user, repo, branch, filename)
     try:
         with urllib.request.urlopen(url) as response:
             content = response.read()
-        with open(dest_path, "wb") as f:
+        with open(filename, "wb") as f:
             f.write(content)
         return True
     except Exception as e:
-        print(f"Fehler beim Download: {e}")
+        print(f"Fehler beim Download von {filename}: {e}")
         return False
 
 
 class UpdateWindow(ctk.CTk):
-    def __init__(self, user, repo, branch, app_name):
+    def __init__(self, user, repo, branch, files):
         super().__init__()
 
         self.user = user
         self.repo = repo
         self.branch = branch
-        self.app_name = app_name  # z.B. "MeineApp"
+        self.files = files
         self.update_done = False
 
         self.title("Update")
-        self.geometry("400x180")
+        self.geometry("400x150")
         self.resizable(False, False)
 
         self.label = ctk.CTkLabel(self, text="Update verfügbar!", font=("Arial", 18, "bold"))
@@ -93,55 +61,29 @@ class UpdateWindow(ctk.CTk):
         self.progress.pack(pady=10)
         self.progress.set(0)
 
+        # Update in separatem Thread starten
         thread = threading.Thread(target=self.run_update)
         thread.start()
 
     def run_update(self):
-        base_path = get_base_path()
-        zip_name = f"{self.app_name}.zip"
-        zip_path = os.path.join(base_path, zip_name)
+        total = len(self.files) + 1  # +1 für version.txt
 
-        # 1. ZIP downloaden
-        self.status.configure(text="Lade Update herunter...")
-        self.progress.set(0.2)
+        for i, filename in enumerate(self.files):
+            self.status.configure(text=f"Lade {filename}...")
+            download_file(self.user, self.repo, self.branch, filename)
+            self.progress.set((i + 1) / total)
 
-        if not download_app_zip(self.user, self.repo, zip_name, zip_path):
-            self.status.configure(text="Download fehlgeschlagen!")
-            self.after(2000, self.destroy)
-            return
-
-        self.progress.set(0.5)
-
-        # 2. ZIP entpacken
-        self.status.configure(text="Installiere Update...")
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            # Nur echte Dateien extrahieren, kein __MACOSX
-            for member in zip_ref.namelist():
-                if not member.startswith('__MACOSX'):
-                    zip_ref.extract(member, base_path)
-
-        self.progress.set(0.7)
-
-        # 3. Berechtigungen setzen (wichtig für macOS!)
-        new_app = os.path.join(base_path, f"{self.app_name}.app")
-        if os.path.exists(new_app):
-            os.chmod(os.path.join(new_app, "Contents", "MacOS", self.app_name), 0o755)
-
-        # 4. ZIP löschen
-        os.remove(zip_path)
-
+        self.status.configure(text="Lade version.txt...")
+        download_file(self.user, self.repo, self.branch, "version.txt")
         self.progress.set(1)
-        self.status.configure(text="Update fertig! Bitte App neu starten.")
+
+        self.status.configure(text="Update abgeschlossen!")
         self.update_done = True
 
-        self.after(2500, self.destroy)
+        self.after(1500, self.destroy)
 
 
-def check_for_updates(user, repo, branch, app_name):
-    """
-    app_name = Name der App ohne .app Endung, z.B. "MiniToolbox"
-    Auf GitHub Releases muss eine Datei "MiniToolbox.zip" liegen
-    """
+def check_for_updates(user, repo, branch, files):
     local_version = get_local_version()
     remote_version = get_remote_version(user, repo, branch)
 
@@ -153,7 +95,8 @@ def check_for_updates(user, repo, branch, app_name):
     print(f"Remote Version: {remote_version}")
 
     if remote_version > local_version:
-        app = UpdateWindow(user, repo, branch, app_name)
+        # GUI starten
+        app = UpdateWindow(user, repo, branch, files)
         app.mainloop()
         return True
 

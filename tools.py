@@ -16,7 +16,7 @@ def run_tools():
         def __init__(self, master):
             super().__init__(master)
 
-            label = ctk.CTkLabel(master=self, text="ES klappt...")
+            label = ctk.CTkLabel(master=self, text="Es klappt...")
             label.place(relx=0.5, rely=0.2, anchor=ctk.CENTER)
 
 
@@ -35,7 +35,7 @@ def run_tools():
         def __init__(self, master):
             super().__init__(master)
 
-            self.welcome_text = ctk.CTkLabel(master=self, text=f"...Wirklich!")
+            self.welcome_text = ctk.CTkLabel(master=self, text=f"..wirklich!")
             self.welcome_text.place(relx=0.5, rely=0.2, anchor=ctk.CENTER)
 
 
