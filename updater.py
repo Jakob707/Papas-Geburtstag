@@ -112,32 +112,23 @@ class UpdateWindow(ctk.CTk):
 
         self.progress.set(0.5)
 
-        # 2. Alte .app löschen
+        # 2. ZIP entpacken
         self.status.configure(text="Installiere Update...")
-        old_app = get_app_path()
-        if old_app and os.path.exists(old_app):
-            shutil.rmtree(old_app)
+        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+            # Nur echte Dateien extrahieren, kein __MACOSX
+            for member in zip_ref.namelist():
+                if not member.startswith('__MACOSX'):
+                    zip_ref.extract(member, base_path)
 
         self.progress.set(0.7)
 
-        # 3. ZIP entpacken
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-            zip_ref.extractall(base_path)
+        # 3. Berechtigungen setzen (wichtig für macOS!)
+        new_app = os.path.join(base_path, f"{self.app_name}.app")
+        if os.path.exists(new_app):
+            os.chmod(os.path.join(new_app, "Contents", "MacOS", self.app_name), 0o755)
 
         # 4. ZIP löschen
         os.remove(zip_path)
-
-        # 5. version.txt updaten
-        self.status.configure(text="Lade version.txt...")
-        version_url = get_raw_url(self.user, self.repo, self.branch, "version.txt")
-        version_path = os.path.join(base_path, "version.txt")
-        try:
-            with urllib.request.urlopen(version_url) as response:
-                content = response.read()
-            with open(version_path, "wb") as f:
-                f.write(content)
-        except:
-            pass
 
         self.progress.set(1)
         self.status.configure(text="Update fertig! Bitte App neu starten.")
