@@ -4,22 +4,25 @@ from updater import check_for_updates
 
 os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 
-# Deine GitHub-Infos
 GITHUB_USER = "Jakob707"
 REPO_NAME = "Papas-Geburtstag"
 BRANCH = "main"
-APP_NAME = "MiniToolbox"  # Name deiner .app (ohne .app)
+
+FILES_TO_UPDATE = ["main.py", "updater.py", "tools.py"]
 
 
 def main():
     print("=== MiniToolbox ===\n")
 
     print("Prüfe auf Updates...")
-    updated = check_for_updates(GITHUB_USER, REPO_NAME, BRANCH, APP_NAME)
+    updated = check_for_updates(GITHUB_USER, REPO_NAME, BRANCH, FILES_TO_UPDATE)
 
     if updated:
-        print("Update installiert. Bitte App neu starten.")
-        sys.exit(0)
+        print("App wurde aktualisiert! Starte neu...")
+        # Kurz warten damit Fenster sich schließen kann
+        import time
+        time.sleep(0.5)
+        os.execv(sys.executable, [sys.executable] + sys.argv)
 
     print("App ist aktuell.\n")
 

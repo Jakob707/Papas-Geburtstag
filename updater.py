@@ -70,7 +70,9 @@ class UpdateWindow(ctk.CTk):
 
         for i, filename in enumerate(self.files):
             self.status.configure(text=f"Lade {filename}...")
-            download_file(self.user, self.repo, self.branch, filename)
+            success = download_file(self.user, self.repo, self.branch, filename)
+            if success:
+                print(f"✓ {filename} aktualisiert")
             self.progress.set((i + 1) / total)
 
         self.status.configure(text="Lade version.txt...")
@@ -80,7 +82,7 @@ class UpdateWindow(ctk.CTk):
         self.status.configure(text="Update abgeschlossen!")
         self.update_done = True
 
-        self.after(1500, self.destroy)
+        self.after(500, self.destroy)
 
 
 def check_for_updates(user, repo, branch, files):
