@@ -189,11 +189,53 @@ def run_tools():
                 button = ctk.CTkButton(master=card, text="Sortieren!", command=organize)
                 button.grid(row=1, column=0, padx=20, pady=5)
 
+            def pass_gen():
+                import random
+
+
+                def generate():
+                    avalible_characters = ['a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h',
+                                           'H', 'i', 'I', 'j', 'J', 'k', 'K', 'l', 'L', 'm', 'M', 'n', 'N', 'o', 'O',
+                                           'p', 'P', 'q', 'Q', 'r', 'R', 's', 'S', 't', 'T', 'u', 'U', 'v', 'V', 'w',
+                                           'W', 'x', 'X', 'y', 'Y', 'z', 'Z', '0', '1', '2', '3', '4', '5', '6', '7',
+                                           '8', '9', '!', '@', '#', '$', '%', '*', '?', '-', '_', '+', '=', '(', ')']
+                    password_list = []
+
+                    import tkinter as tk
+
+                    for _ in range(10):
+                        choice = random.choice(avalible_characters)
+                        avalible_characters.remove(choice)
+                        password_list.append(choice)
+
+                    password = "".join(password_list)
+
+                    copy = tk.Tk()
+                    copy.withdraw()
+                    copy.clipboard_clear()
+                    copy.clipboard_append(f'{password}')
+                    copy.update()
+                    copy.destroy()
+
+
+
+
+
+
+
+                card = ctk.CTkFrame(self, corner_radius=10)
+                card.grid(column=1, row=0, padx=20, pady=20, sticky="nsew")
+
+                pass_gen_label = ctk.CTkLabel(master=card, text="Dateien Sortierer")
+                pass_gen_label.grid(column=0, row=0, sticky="w", padx=20, pady=10)
+
+                button = ctk.CTkButton(master=card, text="In Zwischenablage kopieren", command=generate)
+                button.grid(row=1, column=0, padx=20, pady=5)
+
             dateien_card()
+            pass_gen()
 
     main_page = MainPage(root)
     main_page.place(relx=0, rely=0, relwidth=1, relheight=1)
 
     root.mainloop()
-
-run_tools()
