@@ -1,45 +1,208 @@
 def run_tools():
     import customtkinter as ctk
 
-
     ctk.set_appearance_mode("System")
     ctk.set_default_color_theme('blue')
 
-
-
     root = ctk.CTk()
     root.geometry("800x800")
-    root.title("Test")
-
+    root.title("MiniToolbox")
 
     class MainPage(ctk.CTkFrame):
         def __init__(self, master):
             super().__init__(master)
 
-            label = ctk.CTkLabel(master=self, text="Es klappt...")
-            label.place(relx=0.5, rely=0.2, anchor=ctk.CENTER)
 
+            def dateien_card():
 
+                def organize():
+                    import shutil
+                    import tkinter as tk
+                    from tkinter import messagebox, scrolledtext
+                    from pathlib import Path
 
-            def button_function():
-                end_page = EndPage(master)
-                end_page.place(relx=0, rely=0, relwidth=1, relheight=1)
-                end_page.tkraise()
+                    quelle_ordner = [
+                        Path.home() / "Downloads",
+                        Path.home() / "Desktop",
+                        Path.home() / "Documents",
+                    ]
 
+                    ziel_basisordner = Path.home() / "Documents"
+                    verschiebungen = []
 
-            button = ctk.CTkButton(master=self, text="Done", command=button_function)
-            button.place(relx=0.5, rely=0.5, anchor=ctk.CENTER)
+                    bekannte_kategorien = {
+                        "Bilder", "Videos", "Code", "ZIPs", "MP3s", "Text", "PKGs", "DMGs", "JARs", "RTFs"
+                    }
 
+                    interessante_endungen = {
+                        ".png", ".jpg", ".jpeg", ".mov", ".txt", ".jar", ".zip", ".py", ".html",
+                        ".css", ".js", ".swift", ".xcodeproj", ".dmg", ".pkg", ".pdf", ".pages",
+                        ".yml", ".mp4", ".mp3", ".json", ".rtf"
+                    }
 
-    class EndPage(ctk.CTkFrame):
+                    def zielordner_fuer_endung(endung):
+                        if endung in [".png", ".jpg", ".jpeg", ".heic"]:
+                            return "Bilder"
+                        elif endung in [".mp4", ".mov"]:
+                            return "Videos"
+                        elif endung in [".txt", ".pdf", ".pages", ".rtf"]:
+                            return "Text"
+                        elif endung == ".jar":
+                            return "JARs"
+                        elif endung == ".zip":
+                            return "ZIPs"
+                        elif endung in [".py", ".html", ".css", ".js", ".swift", ".xcodeproj", ".yml", ".json"]:
+                            return "Code"
+                        elif endung == ".dmg":
+                            return "DMGs"
+                        elif endung == ".pkg":
+                            return "PKGs"
+                        elif endung == ".mp3":
+                            return "MP3s"
+                        else:
+                            return None
+
+                    def log(msg):
+                        log_box.insert(tk.END, msg + '\n')
+                        log_box.see(tk.END)
+                        organize_window.update_idletasks()
+
+                    def sortiere_dateien_in_ordner(ordner: Path):
+                        for datei in ordner.rglob("*"):
+                            if datei.is_file():
+                                zielname = zielordner_fuer_endung(datei.suffix.lower())
+                                if zielname:
+                                    ziel = ziel_basisordner / zielname
+                                    ziel.mkdir(parents=True, exist_ok=True)
+                                    zielpfad = ziel / datei.name
+                                    verschiebungen.append((zielpfad, datei))
+                                    shutil.move(str(datei), str(zielpfad))
+                                    log(f"📦 Sortiert: {datei.name} → {ziel}")
+                        versuche_ordner_und_leere_eltern_zu_loeschen(ordner)
+
+                    def versuche_ordner_und_leere_eltern_zu_loeschen(ordner: Path):
+                        try:
+                            while ordner != ordner.parent and not any(ordner.iterdir()):
+                                ordner.rmdir()
+                                log(f"🗑️  Leerer Ordner gelöscht: {ordner}")
+                                ordner = ordner.parent
+                        except Exception:
+                            pass
+
+                    def verschiebe_ordner(ordner: Path):
+                        for eintrag in ordner.iterdir():
+                            if eintrag.is_dir():
+                                ordnername = eintrag.name
+                                ziel = ziel_basisordner / ordnername
+
+                                if ordnername in bekannte_kategorien:
+                                    if ziel.exists():
+                                        log(f"❗ Zielordner '{ziel}' existiert – übersprungen.")
+                                        continue
+                                    shutil.move(str(eintrag), str(ziel))
+                                    verschiebungen.append((ziel, eintrag))
+                                    log(f"📁 Auto-Verschoben: {eintrag} → {ziel}")
+                                else:
+                                    if not str(eintrag.resolve()).startswith(str(ziel_basisordner)):
+                                        zeige_auswahl_dialog(eintrag)
+
+                    def verschiebe_einzeldateien(ordner: Path):
+                        for datei in ordner.iterdir():
+                            if datei.is_file():
+                                zielname = zielordner_fuer_endung(datei.suffix.lower())
+                                if zielname:
+                                    zielordner = ziel_basisordner / zielname
+                                    zielordner.mkdir(parents=True, exist_ok=True)
+                                    zielpfad = zielordner / datei.name
+                                    verschiebungen.append((zielpfad, datei))
+                                    shutil.move(str(datei), str(zielpfad))
+                                    log(f"📄 Datei verschoben: {datei.name} → {zielordner}")
+
+                    def rueckgaengig():
+                        if not verschiebungen:
+                            messagebox.showinfo("Rückgängig", "Keine Verschiebungen rückgängig zu machen.")
+                            return
+                        for ziel, original in reversed(verschiebungen):
+                            if ziel.exists():
+                                try:
+                                    shutil.move(str(ziel), str(original))
+                                    log(f"🔁 Zurück: {ziel.name} → {original}")
+                                except Exception as e:
+                                    log(f"⚠️ Fehler beim Zurückverschieben: {ziel} → {original} | {e}")
+                            versuche_ordner_und_leere_eltern_zu_loeschen(ziel.parent)
+                        verschiebungen.clear()
+                        log("✅ Alle Verschiebungen rückgängig gemacht.")
+
+                    def alles_starten():
+                        log_box.delete(1.0, tk.END)
+                        for ordner in quelle_ordner:
+                            verschiebe_ordner(ordner)
+                            verschiebe_einzeldateien(ordner)
+                        log("✅ Sortierung abgeschlossen.")
+
+                    def zeige_auswahl_dialog(eintrag: Path):
+                        dialog = tk.Toplevel(organize_window)
+                        dialog.title(f"Ordner: {eintrag.name}")
+                        tk.Label(dialog, text=f"Was tun mit: {eintrag.name}?").pack(pady=10)
+
+                        def aktion_1():
+                            ziel = ziel_basisordner / eintrag.name
+                            if ziel.exists():
+                                log(f"❗ Ziel '{ziel}' existiert – übersprungen.")
+                            else:
+                                shutil.move(str(eintrag), str(ziel))
+                                verschiebungen.append((ziel, eintrag))
+                                log(f"📁 Ordner verschoben: {eintrag} → {ziel}")
+                            dialog.destroy()
+
+                        def aktion_2():
+                            sortiere_dateien_in_ordner(eintrag)
+                            dialog.destroy()
+
+                        def aktion_3():
+                            log(f"⏭️  Ordner übersprungen: {eintrag.name}")
+                            dialog.destroy()
+
+                        tk.Button(dialog, text="1️⃣ Ordner verschieben", width=30, command=aktion_1).pack(pady=5)
+                        tk.Button(dialog, text="2️⃣ Nur Inhalt sortieren", width=30, command=aktion_2).pack(pady=5)
+                        tk.Button(dialog, text="3️⃣ Nichts tun", width=30, command=aktion_3).pack(pady=5)
+
+                    # GUI
+                    organize_window = tk.Tk()
+                    organize_window.title("🗂️ Dateien-Organiser")
+                    organize_window.geometry("425x280")
+
+                    tk.Button(organize_window, text="🚀 Sortieren starten", command=alles_starten, bg="lightgreen").pack(pady=10)
+                    tk.Button(organize_window, text="↩️ Rückgängig", command=rueckgaengig, bg="lightblue").pack(pady=5)
+
+                    log_box = scrolledtext.ScrolledText(organize_window, width=100, height=30)
+                    log_box.pack(padx=10, pady=10)
+
+                    organize_window.mainloop()
+
+                card = ctk.CTkFrame(self, corner_radius=10)
+                card.grid(column=0, row=0, padx=20, pady=20, sticky="nsew")
+
+                detein_card_label = ctk.CTkLabel(master=card, text="Dateien Sortierer")
+                detein_card_label.grid(column=0, row=0, sticky="w", padx=20, pady=10)
+
+                button = ctk.CTkButton(master=card, text="Sortieren!", command=organize)
+                button.grid(row=1, column=0, padx=20, pady=5)
+
+            dateien_card()
+
+    class DateienSettings(ctk.CTkFrame):
         def __init__(self, master):
             super().__init__(master)
 
-            self.welcome_text = ctk.CTkLabel(master=self, text=f"...wirklich!")
-            self.welcome_text.place(relx=0.5, rely=0.2, anchor=ctk.CENTER)
+
+            button = ctk.CTkButton(master=self, text="Back!")
+            button.grid(row=1, column=0, padx=20, pady=5)
 
 
     main_page = MainPage(root)
     main_page.place(relx=0, rely=0, relwidth=1, relheight=1)
 
     root.mainloop()
+
+run_tools()
