@@ -191,15 +191,6 @@ def run_tools():
 
             dateien_card()
 
-    class DateienSettings(ctk.CTkFrame):
-        def __init__(self, master):
-            super().__init__(master)
-
-
-            button = ctk.CTkButton(master=self, text="Back!")
-            button.grid(row=1, column=0, padx=20, pady=5)
-
-
     main_page = MainPage(root)
     main_page.place(relx=0, rely=0, relwidth=1, relheight=1)
 
