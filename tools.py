@@ -25,9 +25,10 @@ def run_tools():
                         Path.home() / "Downloads",
                         Path.home() / "Desktop",
                         Path.home() / "Documents",
+                        Path("/Users/krudi/Dokumente Rudi")
                     ]
 
-                    ziel_basisordner = Path.home() / "Documents"
+                    ziel_basisordner = Path("/Users/krudi/Dokumente Rudi")
                     verschiebungen = []
 
                     bekannte_kategorien = {
