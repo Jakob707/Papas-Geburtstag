@@ -226,7 +226,7 @@ def run_tools():
                 card = ctk.CTkFrame(self, corner_radius=10)
                 card.grid(column=1, row=0, padx=20, pady=20, sticky="nsew")
 
-                pass_gen_label = ctk.CTkLabel(master=card, text="Dateien Sortierer")
+                pass_gen_label = ctk.CTkLabel(master=card, text="Passwort Generator!")
                 pass_gen_label.grid(column=0, row=0, sticky="w", padx=20, pady=10)
 
                 button = ctk.CTkButton(master=card, text="In Zwischenablage kopieren", command=generate)

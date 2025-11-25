@@ -10,10 +10,14 @@ def get_raw_url(user, repo, branch, filename):
 
 def get_remote_version(user, repo, branch):
     url = get_raw_url(user, repo, branch, "version.txt")
+    print(f"Versuche Verbindung zu: {url}")
     try:
-        with urllib.request.urlopen(url) as response:
-            return response.read().decode().strip()
-    except:
+        with urllib.request.urlopen(url, timeout=10) as response:
+            version = response.read().decode().strip()
+            print(f"Remote Version empfangen: {version}")
+            return version
+    except Exception as e:
+        print(f"Fehler beim Verbinden: {e}")
         return None
 
 
@@ -51,7 +55,7 @@ class UpdateWindow(ctk.CTk):
         self.geometry("400x150")
         self.resizable(False, False)
 
-        self.label = ctk.CTkLabel(self, text="Update verfügbar!", font=("Arial", 18, "bold"))
+        self.label = ctk.CTkLabel(self, text="Update verfuegbar!", font=("Arial", 18, "bold"))
         self.label.pack(pady=20)
 
         self.status = ctk.CTkLabel(self, text="Starte Download...")
@@ -61,12 +65,11 @@ class UpdateWindow(ctk.CTk):
         self.progress.pack(pady=10)
         self.progress.set(0)
 
-        # Update in separatem Thread starten
         thread = threading.Thread(target=self.run_update)
         thread.start()
 
     def run_update(self):
-        total = len(self.files) + 1  # +1 für version.txt
+        total = len(self.files) + 1
 
         for i, filename in enumerate(self.files):
             self.status.configure(text=f"Lade {filename}...")
@@ -90,14 +93,13 @@ def check_for_updates(user, repo, branch, files):
     remote_version = get_remote_version(user, repo, branch)
 
     if remote_version is None:
-        print("Konnte Version nicht prüfen (offline?)")
+        print("Konnte Version nicht pruefen (offline?)")
         return False
 
     print(f"Lokale Version: {local_version}")
     print(f"Remote Version: {remote_version}")
 
     if remote_version > local_version:
-        # GUI starten
         app = UpdateWindow(user, repo, branch, files)
         app.mainloop()
         return True
