@@ -1,7 +1,11 @@
 import urllib.request
 import os
 import threading
+import ssl
 import customtkinter as ctk
+
+# SSL-Kontext erstellen der Zertifikate nicht prüft
+ssl_context = ssl._create_unverified_context()
 
 
 def get_raw_url(user, repo, branch, filename):
@@ -12,7 +16,7 @@ def get_remote_version(user, repo, branch):
     url = get_raw_url(user, repo, branch, "version.txt")
     print(f"Versuche Verbindung zu: {url}")
     try:
-        with urllib.request.urlopen(url, timeout=10) as response:
+        with urllib.request.urlopen(url, timeout=10, context=ssl_context) as response:
             version = response.read().decode().strip()
             print(f"Remote Version empfangen: {version}")
             return version
@@ -31,7 +35,7 @@ def get_local_version():
 def download_file(user, repo, branch, filename):
     url = get_raw_url(user, repo, branch, filename)
     try:
-        with urllib.request.urlopen(url) as response:
+        with urllib.request.urlopen(url, context=ssl_context) as response:
             content = response.read()
         with open(filename, "wb") as f:
             f.write(content)
