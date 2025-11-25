@@ -1,5 +1,6 @@
 def run_tools():
     import customtkinter as ctk
+    from typing import Union, Callable
 
     ctk.set_appearance_mode("System")
     ctk.set_default_color_theme('blue')
@@ -7,6 +8,70 @@ def run_tools():
     root = ctk.CTk()
     root.geometry("800x800")
     root.title("MiniToolbox")
+
+    class FloatSpinbox(ctk.CTkFrame):
+        def __init__(self, *args,
+                     width: int = 100,
+                     height: int = 32,
+                     step_size: Union[int, float] = 1,
+                     command: Callable = None,
+                     **kwargs):
+            super().__init__(*args, width=width, height=height, **kwargs)
+
+            self.step_size = step_size
+            self.command = command
+
+            self.configure(fg_color=("gray78", "gray28"))
+
+            self.grid_columnconfigure((0, 2), weight=0)
+            self.grid_columnconfigure(1, weight=1)
+
+            self.subtract_button = ctk.CTkButton(self, text="-", width=height - 6, height=height - 6,
+                                                           command=self.subtract_button_callback)
+            self.subtract_button.grid(row=0, column=0, padx=(3, 0), pady=3)
+
+            self.entry = ctk.CTkEntry(self, width=width - (2 * height), height=height - 6, border_width=0)
+            self.entry.grid(row=0, column=1, columnspan=1, padx=3, pady=3, sticky="ew")
+
+            self.add_button = ctk.CTkButton(self, text="+", width=height - 6, height=height - 6,
+                                                      command=self.add_button_callback)
+            self.add_button.grid(row=0, column=2, padx=(0, 3), pady=3)
+
+            self.entry.insert(0, "0.0")
+
+        def add_button_callback(self):
+            if self.command is not None:
+                self.command()
+            try:
+                value = float(self.entry.get()) + self.step_size
+                if value > 60:
+                    value = 60
+                self.entry.delete(0, "end")
+                self.entry.insert(0, value)
+            except ValueError:
+                return
+
+        def subtract_button_callback(self):
+            if self.command is not None:
+                self.command()
+            try:
+                value = float(self.entry.get()) - self.step_size
+                if value < 1:
+                    value = 1
+                self.entry.delete(0, "end")
+                self.entry.insert(0, value)
+            except ValueError:
+                return
+
+        def get(self) -> Union[float, None]:
+            try:
+                return float(self.entry.get())
+            except ValueError:
+                return None
+
+        def set(self, value: float):
+            self.entry.delete(0, "end")
+            self.entry.insert(0, str(float(value)))
 
     class MainPage(ctk.CTkFrame):
         def __init__(self, master):
@@ -168,7 +233,6 @@ def run_tools():
                         tk.Button(dialog, text="2️⃣ Nur Inhalt sortieren", width=30, command=aktion_2).pack(pady=5)
                         tk.Button(dialog, text="3️⃣ Nichts tun", width=30, command=aktion_3).pack(pady=5)
 
-                    # GUI
                     organize_window = tk.Tk()
                     organize_window.title("🗂️ Dateien-Organiser")
                     organize_window.geometry("425x280")
@@ -190,7 +254,7 @@ def run_tools():
                 button = ctk.CTkButton(master=card, text="Sortieren!", command=organize)
                 button.grid(row=1, column=0, padx=20, pady=5)
 
-            def pass_gen():
+            def pass_gen_card():
                 import random
 
 
@@ -204,7 +268,9 @@ def run_tools():
 
                     import tkinter as tk
 
-                    for _ in range(10):
+                    length = int(pas_length_input.get())
+
+                    for _ in range(length):
                         choice = random.choice(avalible_characters)
                         avalible_characters.remove(choice)
                         password_list.append(choice)
@@ -218,25 +284,26 @@ def run_tools():
                     copy.update()
                     copy.destroy()
 
-
-
-
-
-
-
                 card = ctk.CTkFrame(self, corner_radius=10)
                 card.grid(column=1, row=0, padx=20, pady=20, sticky="nsew")
 
-                pass_gen_label = ctk.CTkLabel(master=card, text="Passwort Generator!")
+                pass_gen_label = ctk.CTkLabel(master=card, text="Passwort Generator")
                 pass_gen_label.grid(column=0, row=0, sticky="w", padx=20, pady=10)
 
+                pas_length_input = FloatSpinbox(card, width=150, step_size=1)
+                pas_length_input.grid(column=0, row=1, padx=20, pady=5)
+
+                pas_length_input.set(12)
+
                 button = ctk.CTkButton(master=card, text="In Zwischenablage kopieren", command=generate)
-                button.grid(row=1, column=0, padx=20, pady=5)
+                button.grid(column=0, row=2, padx=20, pady=5)
 
             dateien_card()
-            pass_gen()
+            pass_gen_card()
 
     main_page = MainPage(root)
     main_page.place(relx=0, rely=0, relwidth=1, relheight=1)
 
     root.mainloop()
+
+run_tools()
